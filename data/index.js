@@ -1,10 +1,10 @@
 // Index for all data functions
-const postData = require('./posts');
+const playlistData = require('./playlists');
 const songData = require('./songs');
 const userData = require('./users');
 
 module.exports = {
-    posts: postData,
+    playlists: playlistData,
     songs: songData,
     users: userData
 };

@@ -21,5 +21,5 @@ NOTE: YOU WILL NEED TO CHANGE THE CODE BELOW TO HAVE THE COLLECTION(S) REQUIRED 
 module.exports = {
   songs: getCollectionFn('songs'),
   users: getCollectionFn('users'),
-  posts: getCollectionFn('posts'),
+  playlists: getCollectionFn('playlists'),
 };

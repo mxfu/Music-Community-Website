@@ -1,5 +1,5 @@
 // Index for all routes
-const postRoutes = require('./posts');
+const playlistRoutes = require('./playlists');
 const songRoutes = require('./songs');
 const userRoutes = require('./users');
 
