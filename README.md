@@ -5,4 +5,12 @@ Members: Leonel Trubbo, Simrun Heir, Mya Phu, Serena Lee, Rayhan Howlader
 
 Positions:
 * Frontend - 
+* * Frontend Designs - Serena, Rayhan
+* * HTML Handlebars layouts - Serena, Rayhan
+* * CSS Styling - Serena, Rayhan
+* * User Interations - Everyone
 * Backend -
+* * Logging Middleware - Simrun, Leo, Serena
+* * Routing - Leo, Simrun, Rayhan
+* Database -
+* * Datafile - Simrun, Rayhan, Mya
