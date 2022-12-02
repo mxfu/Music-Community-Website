@@ -8,6 +8,36 @@ const saltRounds = 16;
 
 // data functions for songs
 
+// data functions for songs
+
+const postSong = async () => {
+
+};
+
+const deleteSong = async () => {
+
+};
+
+const updateAll = async () => {
+
+};
+
+const updateSongLink = async () => {
+
+};
+
+const updateGenre = async () => {
+
+};
+
+const updateSongTitle = async () => {
+
+};
+
+const updateArtist = async () => {
+
+};
+
 module.exports = {
     
 };
