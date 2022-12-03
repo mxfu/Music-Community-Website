@@ -11,7 +11,7 @@ const { ObjectId } = require('mongodb');
  */
 const validString = (str, size = 0) => {
     if (!str) throw 'You must provide a non-empty string';
-    if (typeof(str) !== 'string') throw 'You must provide a string';
+    if (typeof (str) !== 'string') throw 'You must provide a string';
     if (str.trim().length === 0) throw 'String cannot be empty string or just spaces';
     if (str.trim().length < size) throw `Inputted string must contain at least ${size} non-space characters`;
 
@@ -30,7 +30,7 @@ const validArray = (arr, size = 1, type = null) => {
     if (!arr) throw `You must provide a non-empty array`;
     if (arr.length < size) throw `Your array must have at least ${size} elements`;
     if (type !== null) {
-        let allEqual = arr => arr.every(val => typeof(val) === type);
+        let allEqual = arr => arr.every(val => typeof (val) === type);
         if (!allEqual) throw `All elements in array must be of type ${type}`;
     }
 
@@ -44,7 +44,7 @@ const validArray = (arr, size = 1, type = null) => {
  */
 const hasNumbers = (str) => {
     if (!str) throw 'You must provide a non-empty string';
-    if (typeof(str) !== 'string') throw 'You must provide a string';
+    if (typeof (str) !== 'string') throw 'You must provide a string';
     if (str.trim().length === 0) throw 'String cannot be empty string or just spaces';
 
     str = str.trim();
@@ -55,7 +55,7 @@ const hasNumbers = (str) => {
 /**
  * gets todays date and returns it in form mm/dd/yyyy, is only for C.E. dates
  */
- let getToday = () => {
+let getToday = () => {
     let today = new Date;
     let dd = today.getDate();
     let mm = today.getMonth() + 1;
@@ -77,61 +77,69 @@ const hasNumbers = (str) => {
 
     today = mm + '/' + dd + '/' + yyyy;
     return today;
-}
+};
 
-module.exports = {
-    /*
+/*
         username --> 5 characters, non-empty, no spaces, alphanumeric, no special characters
         password --> 6 characters, non-empty, no spaces, 1 capital letter, lowercase, uppercase, and special character
     */
-    checkUsername(username) {
-        //check for existence of arguments
-        if ((!username || !password)) {
-            throw "must provide both a username and password";
-        }
-
-        if (typeof username !== "string" || typeof password !== "string") {
-            throw "username and password must be strings";
-        }
-
-        //check username for letters and numbers only 
-        let unRegex = /^[a-zA-Z0-9]+$/;
-        let verify = true;
-
-        if (username.trim().match(unRegex) === null) {
-            verify = false;
-        }
-
-        if (verify === false) {
-            throw "username must be letters only";
-        }
-
-        //check username be at least 4 characters
-        if (username.trim().length < 5) {
-            throw "username must be at least 5 characters"
-        }
-
-        return username;
-
-    },
-
-    checkPassword(password) {
-        //check password for any character
-        let pwRegex = /^(?=.*?[A-Z])(?=(.*[\d]){1,})(?=(.*[\W]){1,})(?!.*\s).{6,}$/gm
-
-        if (password.trim().match(pwRegex) === null) {
-            verify = false;
-        }
-
-        if (verify === false) {
-            throw "password must have at least 1 uppercase letter, 1 number, and 1 special character";
-        }
-
-        //check password is at least 6 characters
-        if (password.trim().length < 6) {
-            throw "password must be at least 6 characters"
-        }
-
-        return password;
+const checkUsername = (username) => {
+    //check for existence of arguments
+    if ((!username || !password)) {
+        throw "must provide both a username and password";
     }
+
+    if (typeof username !== "string" || typeof password !== "string") {
+        throw "username and password must be strings";
+    }
+
+    //check username for letters and numbers only 
+    let unRegex = /^[a-zA-Z0-9]+$/;
+    let verify = true;
+
+    if (username.trim().match(unRegex) === null) {
+        verify = false;
+    }
+
+    if (verify === false) {
+        throw "username must be letters only";
+    }
+
+    //check username be at least 4 characters
+    if (username.trim().length < 5) {
+        throw "username must be at least 5 characters"
+    }
+
+    return username;
+
+};
+
+const checkPassword = (password) => {
+    //check password for any character
+    let pwRegex = /^(?=.*?[A-Z])(?=(.*[\d]){1,})(?=(.*[\W]){1,})(?!.*\s).{6,}$/gm
+
+    if (password.trim().match(pwRegex) === null) {
+        verify = false;
+    }
+
+    if (verify === false) {
+        throw "password must have at least 1 uppercase letter, 1 number, and 1 special character";
+    }
+
+    //check password is at least 6 characters
+    if (password.trim().length < 6) {
+        throw "password must be at least 6 characters"
+    }
+
+    return password;
+};
+
+module.exports = {
+    validString,
+    validArray,
+    hasNumbers,
+    getToday,
+    checkUsername,
+    checkPassword,
+
 };
