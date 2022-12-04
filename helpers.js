@@ -1,4 +1,15 @@
 // Helper functions to be used in other files
+const { ObjectId } = require("mongodb");
+
+function checkId(id, varName) {
+  if (!id) throw `Error: You must provide a ${varName}`;
+  if (typeof id !== "string") throw `Error:${varName} must be a string`;
+  id = id.trim();
+  if (id.length === 0)
+    throw `Error: ${varName} cannot be an empty string or just spaces`;
+  if (!ObjectId.isValid(id)) throw `Error: ${varName} invalid object ID`;
+  return id;
+}
 function checkNames(input) {
   var namesCheck = "[a-zA-Z]+"; //checks for letters only
   if (!namesCheck.test(input))
@@ -22,9 +33,9 @@ function checkUsername(username) {
   if (username.length === 0) throw "Error: username cannot contain just spaces";
   if (username.length <= 4)
     throw "Error: username cannot be less than 5 characters";
-  const letters = /[a-zA-Z]/;
+  const letters = /[a-zA-Z]/; //regex to check for at least one letter character
   const letterCheck = letters.test(username);
   if (!letterCheck)
     throw "Error: Username must contain at least one letter character.";
 }
-module.exports = { checkNames, checkString, checkUsername };
+module.exports = { checkId, checkNames, checkString, checkUsername };
