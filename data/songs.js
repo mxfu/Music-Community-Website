@@ -5,8 +5,9 @@ const songs = mongoCollections.songs;
 const {ObjectId} = require('mongodb');
 const helper = require('../helpers');
 const user = require('./users');
-const bcrypt = require('bcrypt');
-const saltRounds = 16;
+// const bcrypt = require('bcrypt');
+// const saltRounds = 16;
+const platforms = ['Youtube', 'Soundcloud', 'Apple Music', 'Spotify', 'Tidal']
 
 // data functions for songs
 
@@ -17,8 +18,9 @@ const saltRounds = 16;
  * @param {*} artist : name of artist - string
  * @param {*} genres : list of genres - array
  *  genres are strings containing letters and punctuation (-/&)
- * @param {*} links : list of url links to listen to songs - array
- *  urls are entered as strings
+ * @param {*} links : list of url links to listen to songs - array of arrays [platform, link]
+ *  platform is a string
+ *  link is an url entered as strings
  */
 const postSong = async (posterId, title, artist, genres, links) => {
     // checking if all inputs exist
@@ -40,6 +42,7 @@ const postSong = async (posterId, title, artist, genres, links) => {
             }
         }
     }
+    // !reformat to work as 2D array
     if (helper.validArray(links, 1, 'string')) {
         for (const link of links) {
             if (helper.validString(link.trim())) link = link.trim();
@@ -171,8 +174,9 @@ const deleteSong = async (songId, userId) => {
  * @param {*} na : New artist of song - string
  * @param {*} ng : New genres of song - array
  *  genre is a string containing letters and punctuation (-/&)
- * @param {*} nl : New links to listen to song - array
- *  links are urls in string form
+ * @param {*} nl : New list of links - array of arrays [platform, link]
+ *  platform is a string
+ *  link is an url entered as strings
  */
 const updateAll = async (songId, userId, nt, na, ng, nl) => {
     // checking all inputs
@@ -200,6 +204,7 @@ const updateAll = async (songId, userId, nt, na, ng, nl) => {
             }
         }
     }
+    // !reformat to work as 2D array
     if (helper.validArray(links, 1, 'string')) {
         for (const link of links) {
             if (helper.validString(link.trim())) link = link.trim();
@@ -295,6 +300,17 @@ const updateArtist = async (songId, na) => {
  *  links are urls in string form
  */
 const updateSongLinks = async (songId, nl) => {
+    if (!songId) throw 'You must provide a songId to search for';
+    if (helper.validString(songId.trim())) songId = songId.trim();
+    if (!ObjectId.isValid(songId)) throw 'Invalid songId';
+    if (helper.validArray(nl, 1, 'string')) {
+        for (const link of nl) {
+            if (helper.validString(link.trim())) link = link.trim();
+            // testing for whitespace
+            let hasSpace = /\s/.test(link);
+            if (hasSpace) throw 'Links cannot contain spaces';
+        }
+    }
 
 };
 

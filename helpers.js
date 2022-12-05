@@ -37,6 +37,17 @@ const validArray = (arr, size = 1, type = null) => {
 };
 
 /**
+ * determines if multidimensional array arr meets requirements
+ * @param {*} arr : input array
+ * @param {*} dimension : how many nested arrays there are
+ * @param {*} size : array of desired minimum lengths for array in order
+ * @param {*} types : array of types in order
+ */
+const validArrayMd = (arr, dimension, size = null, types = null) => {
+
+};
+
+/**
  * returns true if str contains numbers, false if str doesn't contain numbers
  * @param {*} str : string
  * @returns boolean
