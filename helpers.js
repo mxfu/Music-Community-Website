@@ -9,14 +9,12 @@
  * @returns boolean
  */
 const validString = (str, size = 0) => {
-  if (!str) throw "You must provide a non-empty string";
-  if (typeof str !== "string") throw "You must provide a string";
-  if (str.trim().length === 0)
-    throw "String cannot be empty string or just spaces";
-  if (str.trim().length < size)
-    throw `Inputted string must contain at least ${size} non-space characters`;
+    if (!str) throw 'You must provide a non-empty string';
+    if (typeof(str) !== 'string') throw 'You must provide a string';
+    if (str.trim().length === 0) throw 'String cannot be empty string or just spaces';
+    if (str.trim().length < size) throw `Inputted string must contain at least ${size} non-space characters`;
 
-  return true;
+    return true;
 };
 
 /**
@@ -28,14 +26,14 @@ const validString = (str, size = 0) => {
  * @returns boolean
  */
 const validArray = (arr, size = 1, type = null) => {
-  if (!arr) throw "You must provide a non-empty array";
-  if (arr.length < size) throw "Your array must have at least ${size} elements";
-  if (type !== null) {
-    let allEqual = (arr) => arr.every((val) => typeof val === type);
-    if (!allEqual) throw "All elements in array must be of type ${type}";
-  }
+    if (!arr) throw 'You must provide a non-empty array';
+    if (arr.length < size) throw 'Your array must have at least ${size} elements';
+    if (type !== null) {
+        let allEqual = arr => arr.every(val => typeof(val) === type);
+        if (!allEqual) throw 'All elements in array must be of type ${type}';
+    }
 
-  return true;
+    return true;
 };
 
 // /**
@@ -50,14 +48,13 @@ const validArray = (arr, size = 1, type = null) => {
 // };
 
 const hasSpace = (str) => {
-  if (!str) throw "You must provide a non-empty string";
-  if (typeof str !== "string") throw "You must provide a string";
-  if (str.trim().length === 0)
-    throw "String cannot be empty string or just spaces";
+    if (!str) throw 'You must provide a non-empty string';
+    if (typeof(str) !== 'string') throw 'You must provide a string';
+    if (str.trim().length === 0) throw 'String cannot be empty string or just spaces';
 
-  str = str.trim();
+    str = str.trim();
 
-  return /\s/.test(str);
+    return /\s/.test(str);
 };
 
 /**
@@ -66,14 +63,13 @@ const hasSpace = (str) => {
  * @returns boolean
  */
 const hasNumbers = (str) => {
-  if (!str) throw "You must provide a non-empty string";
-  if (typeof str !== "string") throw "You must provide a string";
-  if (str.trim().length === 0)
-    throw "String cannot be empty string or just spaces";
+    if (!str) throw 'You must provide a non-empty string';
+    if (typeof(str) !== 'string') throw 'You must provide a string';
+    if (str.trim().length === 0) throw 'String cannot be empty string or just spaces';
 
-  str = str.trim();
+    str = str.trim();
 
-  return /\d/.test(str);
+    return /\d/.test(str);
 };
 
 /**
@@ -113,11 +109,13 @@ function checkId(id, varName) {
   if (!ObjectId.isValid(id)) throw `Error: ${varName} invalid object ID`;
   return id;
 }
+
 function checkNames(input) {
   var namesCheck = "[a-zA-Z]+"; //checks for letters only
   if (!namesCheck.test(input))
     throw "Error: names must only contain alphabetical characters!";
 }
+
 function checkString(strVal, varName) {
   if (!strVal) throw `Error: You must supply a ${varName}!`;
   if (typeof strVal !== "string") throw `Error: ${varName} must be a string!`;
@@ -128,6 +126,7 @@ function checkString(strVal, varName) {
     throw `Error: ${strVal} is not a valid value for ${varName} as it only contains digits`;
   return strVal;
 }
+
 function checkUsername(username) {
   if (!username) throw "Error: username was not provided!";
   if (typeof username !== "string")
@@ -141,6 +140,7 @@ function checkUsername(username) {
   if (!letterCheck)
     throw "Error: Username must contain at least one letter character.";
 }
+
 module.exports = {
   checkId,
   checkNames,
