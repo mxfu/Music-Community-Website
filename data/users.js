@@ -8,6 +8,16 @@ const saltRounds = 16;
 
 // data functions for users
 
+/**
+ * 
+ * @param {*} firstName 
+ * @param {*} lastName 
+ * @param {*} userName 
+ * @param {*} password 
+ * @param {*} confirmPassword 
+ * @param {*} isAdmin 
+ * @returns 
+ */
 const createUser = async (
   firstName,
   lastName,
@@ -37,12 +47,23 @@ const createUser = async (
   if (newInsert.insertedCount === 0) throw "Insert failed!";
   return await this.getUserById(newInsert.insertedId.toString());
 };
+
+/**
+ * 
+ * @returns 
+ */
 const getAllUsers = async () => {
   const userCollection = await users();
   const userList = await userCollection.find({}).toArray();
   if (!userList) throw "No users in system!";
   return userList;
 };
+
+/**
+ * 
+ * @param {*} id 
+ * @returns 
+ */
 const getUserById = async (id) => {
   id = helper.checkId(id, "ID");
   const userCollection = await users();
@@ -50,13 +71,24 @@ const getUserById = async (id) => {
   if (!user) throw "User not found";
   return user;
 };
+
 // same as getUserById but just checks if they're an admin or not
+/**
+ * 
+ * @param {*} userId 
+ * @returns 
+ */
 const isAdmin = async (userId) => {
   userId = helper.checkId(userId, "ID");
   const user = getUserById(userId);
   if (user.isAdmin === false) return false; //not admin return false
   else return true; // admin return true
 };
+
+/**
+ * 
+ * @param {*} userId 
+ */
 const createAdmin = async (userId) => {
   userId = helper.checkId(userId, "ID");
   const user = getUserById(userId);
