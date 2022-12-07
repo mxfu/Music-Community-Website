@@ -26,7 +26,7 @@ const postSong = async (posterId, title, artist, genres, links) => {
     //checking if inputs are ok
     if (helper.validString(posterId.trim())) posterId = posterId.trim();
     if (!ObjectId.isValid(posterId)) throw 'Poster does not have valid ObjectId';
-    let admin = await user.getUser(userId).admin;
+    let admin = await user.isAdmin(userId);
     if (!admin) throw 'Not admin'; // checking if admin
     if (helper.validString(title.trim())) title = title.trim();
     if (helper.validString(artist.trim())) artist = artist.trim();
@@ -138,14 +138,12 @@ const deleteSong = async (songId, userId) => {
     // checking inputs
     if (!songId || !userId) throw 'All fields must have values';
     // checking if user posted
-    let admin = await getUser(userId).admin;
+    let admin = await user.isAdmin(userId);
     let og = await getSongById(songId); // original song
     if (!admin || (userId !== og.posterId)) throw 'Not admin or did not post song';
     // checking song
     if (helper.validString(songId.trim())) songId = songId.trim();
     if (!ObjectId.isValid(songId)) throw 'Invalid songId';
-
-    
 
     // getting DB
     const songCollection = await songs();
@@ -193,7 +191,7 @@ const updateAll = async (songId, userId, nt, na, ng, nl) => {
     // checking all inputs
     if (!songId || !userId || !nt || !na || !ng || !nl) throw 'All fields need to have values';
     // checking if user posted
-    let admin = await getUser(userId).admin;
+    let admin = await users.isAdmin(userId);
     let og = await getSongById(songId); // original song
     if (!admin || (userId !== og.posterId)) throw 'Not admin or did not post song';
     //checking remainging inputs
@@ -261,7 +259,7 @@ const updateAll = async (songId, userId, nt, na, ng, nl) => {
     // checking inputs
     if (!songId || !userId || !nt) throw 'All fields must have values';
     // checking if user posted
-    let admin = await getUser(userId).admin;
+    let admin = await user.isAdmin(userId);
     let og = await getSongById(songId); // original song
     if (!admin || (userId !== og.posterId)) throw 'Not admin or did not post song';
     // checking songId and nt
@@ -295,7 +293,7 @@ const updateArtist = async (songId, userId, na) => {
     // checking inputs
     if (!songId || !userId || !na) throw 'All fields must have values';
     // checking if user posted
-    let admin = await getUser(userId).admin;
+    let admin = await user.isAdmin(userId);
     let og = await getSongById(songId); // original song
     if (!admin || (userId !== og.posterId)) throw 'Not admin or did not post song';
     // checking songId and na
@@ -328,7 +326,7 @@ const updateArtist = async (songId, userId, na) => {
     // checking inputs
     if (!songId || !userId || !ng) throw 'All fields must have values';
     // checking if user posted
-    let admin = await getUser(userId).admin;
+    let admin = await user.isAdmin(userId);
     let og = await getSongById(songId); // original song
     if (!admin || (userId !== og.posterId)) throw 'Not admin or did not post song';
     // checking songId and ng
@@ -372,7 +370,7 @@ const updateSongLinks = async (songId, userId, nl) => {
     // checking inputs
     if (!songId || !userId || !nl) throw 'All fields must have values';
     // checking if user posted
-    let admin = await getUser(userId).admin;
+    let admin = await user.isAdmin(userId);
     let og = await getSongById(songId); // original song
     if (!admin || (userId !== og.posterId)) throw 'Not admin or did not post song';
     // checking songId and nl
