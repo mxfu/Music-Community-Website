@@ -36,6 +36,27 @@ const validArray = (arr, size = 1, type = null) => {
     return true;
 };
 
+// /**
+//  * determines if multidimensional array arr meets requirements
+//  * @param {*} arr : input array
+//  * @param {*} dimension : how many nested arrays there are
+//  * @param {*} size : array of desired minimum lengths for array in order
+//  * @param {*} types : array of types in order
+//  */
+// const validArrayMd = (arr, dimension, size = null, types = null) => {
+
+// };
+
+const hasSpace = (str) => {
+    if (!str) throw 'You must provide a non-empty string';
+    if (typeof(str) !== 'string') throw 'You must provide a string';
+    if (str.trim().length === 0) throw 'String cannot be empty string or just spaces';
+
+    str = str.trim();
+
+    return /\s/.test(str);
+};
+
 /**
  * returns true if str contains numbers, false if str doesn't contain numbers
  * @param {*} str : string
@@ -81,6 +102,7 @@ const hasNumbers = (str) => {
 module.exports = {
     validString,
     validArray,
+    hasSpace,
     hasNumbers,
     getToday 
 };
