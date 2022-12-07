@@ -5,8 +5,6 @@ const songs = mongoCollections.songs;
 const {ObjectId} = require('mongodb');
 const helper = require('../helpers');
 const user = require('./users');
-// const bcrypt = require('bcrypt');
-// const saltRounds = 16;
 const platforms = ['Youtube', 'Soundcloud', 'Apple Music', 'Spotify', 'Tidal'];
 
 // data functions for songs
@@ -28,7 +26,7 @@ const postSong = async (posterId, title, artist, genres, links) => {
     //checking if inputs are ok
     if (helper.validString(posterId.trim())) posterId = posterId.trim();
     if (!ObjectId.isValid(posterId)) throw 'Poster does not have valid ObjectId';
-    let admin = await getUser(userId).admin;
+    let admin = await user.getUser(userId).admin;
     if (!admin) throw 'Not admin'; // checking if admin
     if (helper.validString(title.trim())) title = title.trim();
     if (helper.validString(artist.trim())) artist = artist.trim();
