@@ -157,7 +157,7 @@ const deleteSong = async (songId, userId) => {
     // const comments = song.comments;
 
     // deleting song from DB
-    const deletionInfo = await songCollection.deleteOne({_id: ObjectId(movieId)});
+    const deletionInfo = await songCollection.deleteOne({_id: ObjectId(songId)});
     if (deletionInfo.deleteCount === 0) throw `Could not delete song with id of ${songId}`;
 
     // delete comment connections for comment commentId on song
