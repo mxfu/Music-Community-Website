@@ -63,7 +63,7 @@ const checkUser = async (username, password) => {
 }
 
 //leave comments on songs , users react to other comments, deleteing comment, removing an interaction
-const createComment = async (songId, userId, comment) => {
+const createComment = async (songId, userId, comment, commentRating) => {
     if (!comment) {
         throw "must enter an comment";
     }
@@ -81,9 +81,19 @@ const createComment = async (songId, userId, comment) => {
 
     let newSongReview = {
         _id: ObjectId(),
-        userId: userId
-        rating: 
+        userId: userId,
+        rating: commentRating,
+        likes: 0,
+        dislikes: 0,
+        usersInteractions: []
     }
+
+    let songReviews = songs.songReviews;
+
+    songReviews.push(newSongReview);
+
+
+
 
 }
 

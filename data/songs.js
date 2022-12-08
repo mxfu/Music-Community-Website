@@ -1,7 +1,7 @@
 // functions for songs
 const mongoCollections = require('../config/mongoCollections');
 const songs = mongoCollections.songs;
-const {ObjectId} = require('mongodb');
+const { ObjectId } = require('mongodb');
 const helper = require('../helpers');
 const bcrypt = require('bcrypt');
 const saltRounds = 16;
@@ -29,7 +29,7 @@ const postSong = async (posterId, name, artist, genres, links) => {
         for (const genre of genres) {
             if (helper.validString(genre.trim()) && !helper.hasNumbers(genre.trim())) {
                 genre = genre.trim();
-                
+
                 let badChars = /[@#$%^*_+=\\|<>~\[\]{}()'"`!:;,.?]/;
                 let goodEntry = badChars.test(genre);
 
@@ -79,7 +79,7 @@ const getAllSongs = async () => {
         songList[i]._id = songList[i]._id.toString();
         let comments = songList[i].comments
         for (let j = 0; j < comments.length; j++) {
-          songList[i].comments[j]._id = songList[i].comments[j]._id.toString();
+            songList[i].comments[j]._id = songList[i].comments[j]._id.toString();
         }
     }
 
@@ -96,13 +96,13 @@ const getSongById = async (songId) => {
     if (!ObjectId.isValid(songId)) throw 'Invalid song Object ID';
 
     const songCollection = await songs();
-    let song = await songCollection.findOne({_id: ObjectId(songId)});
+    let song = await songCollection.findOne({ _id: ObjectId(songId) });
     if (song === null) throw `No song with id: ${songId}`;
 
     song._id = song._id.toString();
 
     return song;
-}; 
+};
 
 /**
  * deletes song name from artist artist
@@ -134,5 +134,5 @@ const updateArtist = async () => {
 };
 
 module.exports = {
-    
+
 };

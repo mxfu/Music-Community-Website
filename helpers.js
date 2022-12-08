@@ -32,8 +32,6 @@ const validArray = (arr, size = 1, type = null) => {
     if (type !== null) {
         let allEqual = arr => arr.every(val => typeof (val) === type);
         if (!allEqual) throw `All elements in array must be of type ${type}`;
-        let allEqual = arr => arr.every(val => typeof(val) === type);
-        if (!allEqual) throw 'All elements in array must be of type ${type}';
     }
 
     return true;
