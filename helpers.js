@@ -27,11 +27,13 @@ const validString = (str, size = 0) => {
  * @returns boolean
  */
 const validArray = (arr, size = 1, type = null) => {
-    if (!arr) throw `You must provide a non-empty array`;
-    if (arr.length < size) throw `Your array must have at least ${size} elements`;
+    if (!arr) throw 'You must provide a non-empty array';
+    if (arr.length < size) throw 'Your array must have at least ${size} elements';
     if (type !== null) {
         let allEqual = arr => arr.every(val => typeof (val) === type);
         if (!allEqual) throw `All elements in array must be of type ${type}`;
+        let allEqual = arr => arr.every(val => typeof(val) === type);
+        if (!allEqual) throw 'All elements in array must be of type ${type}';
     }
 
     return true;
