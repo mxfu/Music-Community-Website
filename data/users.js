@@ -3,7 +3,7 @@ const mongoCollections = require("../config/mongoCollections");
 const users = mongoCollections.users;
 const { ObjectId } = require('mongodb');
 const helper = require("../helpers");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const saltRounds = 16;
 const validation = require('../helpers');
 const { songs } = require('../config/mongoCollections');
@@ -41,11 +41,13 @@ const createComment = async (songId, userId, comment, commentRating) => {
     }
 
     //validation is done
-    const song = await songs.getSongById(songId);
+    const music = await songs();
+    const song = await music.getSongById(songId);
+    const parseId = ObjectId(songId);
+
     if (!(song)) {
         throw "no song of that id";
     }
-    const songs = await songs();
 
     let newSongReview = {
         _id: ObjectId(),
@@ -56,10 +58,40 @@ const createComment = async (songId, userId, comment, commentRating) => {
         usersInteractions: []
     }
 
-    let songReviews = songs.songReviews;
+    let findUser = await getUserById(userId);
 
-    songReviews.push(newSongReview);
+    if (!findUser) {
+        throw "user cannot be found";
+    }
 
+    let profile = findUser.songReviews;
+
+    profile.push(newSongReview["_id"]); //pushing review id into the user's songReviews
+
+    let userCollection = await users();
+    let parseUser = ObjectId(userId);
+
+    const updateUser = await userCollection.updateOne(
+        { _id: parseUser },
+        { $set: { songReviews: profile } }
+    )
+    if (!(updateUser.matchCount && updateUser.modifiedCount)) {
+        throw "user's comment can not be created";
+    }
+
+    let userComments = song.comments;
+    userComments.push(newSongReview);
+
+    const update = await music.updateOne(
+        { _id: parseId },
+        { $set: { comments: userComments } }
+    );
+
+    if (!(update.matchCount && update.modifiedCount)) {
+        throw "comment can not be created";
+    }
+
+    return newSongReview;
 }
 
 /**
@@ -77,15 +109,14 @@ const createUser = async (
     lastName,
     userName,
     password,
-    confirmPassword,
-    isAdmin
+    confirmPassword
 ) => {
     helper.checkNames(firstName);
     helper.checkNames(lastName);
     helper.checkString(firstName, "string");
     helper.checkString(lastName, "string");
     helper.checkUsername(userName);
-    isAdmin === false; // set isAdmin to false for every user that gets created
+    //isAdmin === false; // set isAdmin to false for every user that gets created
     if (!password === confirmPassword)
         throw "Error: password must match confirmPassword";
     const userCollection = await users();
@@ -95,11 +126,15 @@ const createUser = async (
         lastName: lastName,
         userName: userName,
         password: hash,
-        isAdmin: isAdmin,
+        isAdmin: false,
+        songPosts: [],
+        songReviews: [],
+        playlistsPosts: [],
+        commentInterations: [],
     };
     const newInsert = await userCollection.insertOne(newUser);
     if (newInsert.insertedCount === 0) throw "Insert failed!";
-    return await this.getUserById(newInsert.insertedId.toString());
+    return await getUserById(newInsert.insertedId.toString());
 };
 
 /**
@@ -145,9 +180,19 @@ const isAdmin = async (userId) => {
  */
 const createAdmin = async (userId) => {
     userId = helper.checkId(userId, "ID");
-    const user = getUserById(userId);
-    if (isAdmin(user) === true) throw "User is already an admin!";
-    else user.isAdmin === true;
+    const user = await getUserById(userId);
+    //need to errorcheck if user exists
+    if (isAdmin(userId) === true) throw "User is already an admin!";
+
+    const userCollection = await users();
+
+    const update = await userCollection.updateOne(
+        { _id: ObjectId(userId) },
+        { $set: { isAdmin: true } }
+    );
+
+    //need to error check
+    return true;
 };
 
 module.exports = {
