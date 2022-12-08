@@ -9,6 +9,7 @@ const saltRounds = 16;
 // data functions for users
 
 /**
+
  *
  * @param {*} firstName : firstname of user entered in the registration page - string
  * @param {*} lastName : lastname of user entered in the registration page - string
@@ -26,6 +27,16 @@ const saltRounds = 16;
  * TODO remove comment Id from song reviews
  * TODO Remove a playlistId from playlist post
  * TODO remove a commentInteractionsId from commentInteractions
+=======
+ * 
+ * @param {*} firstName 
+ * @param {*} lastName 
+ * @param {*} userName 
+ * @param {*} password 
+ * @param {*} confirmPassword 
+ * @param {*} isAdmin 
+ * @returns 
+
  */
 const createUser = async (
   firstName,
@@ -76,8 +87,13 @@ const createUser = async (
 };
 
 /**
+
  *
  * @returns list of users in DB
+=======
+ * 
+ * @returns 
+
  */
 const getAllUsers = async () => {
   const userCollection = await users();
@@ -87,9 +103,15 @@ const getAllUsers = async () => {
 };
 
 /**
+
  *
  * @param {*} id : ObjectId of user being searched - string
  * @returns
+=======
+ * 
+ * @param {*} id 
+ * @returns 
+
  */
 const getUserById = async (id) => {
   id = helper.checkId(id, "ID");
@@ -101,9 +123,15 @@ const getUserById = async (id) => {
 
 // same as getUserById but just checks if they're an admin or not
 /**
+
  *
  * @param {*} userId : ObjectId of user being checked - string
  * @returns boolean true if user is admin, false if not
+=======
+ * 
+ * @param {*} userId 
+ * @returns 
+
  */
 const isAdmin = async (userId) => {
   userId = helper.checkId(userId, "ID");
@@ -113,8 +141,13 @@ const isAdmin = async (userId) => {
 };
 
 /**
+
  *
  * @param {*} userId : ObjectId of user being processed for admin privileges - string
+=======
+ * 
+ * @param {*} userId 
+
  */
 const createAdmin = async (userId) => {
   userId = helper.checkId(userId, "ID");
