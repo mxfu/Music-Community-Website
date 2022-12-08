@@ -154,7 +154,7 @@ const deleteSong = async (songId, userId) => {
     if (userId !== song.posterId) throw `Song must be deleted by poster`;
     const title = song.title;
     const artist = song.artist;
-    const comments = song.comments;
+    // const comments = song.comments;
 
     // deleting song from DB
     const deletionInfo = await songCollection.deleteOne({_id: ObjectId(movieId)});
