@@ -10,13 +10,13 @@ const { ObjectId } = require("mongodb");
  * @returns 
  */
 const checkId = (id, varName) => {
-    if (!id) throw `Error: You must provide a ${varName}`;
-    if (typeof id !== "string") throw `Error:${varName} must be a string`;
-    id = id.trim();
-    if (id.length === 0)
-      throw `Error: ${varName} cannot be an empty string or just spaces`;
-    if (!ObjectId.isValid(id)) throw `Error: ${varName} invalid object ID`;
-    return id;
+  if (!id) throw `Error: You must provide a ${varName}`;
+  if (typeof id !== "string") throw `Error:${varName} must be a string`;
+  id = id.trim();
+  if (id.length === 0)
+    throw `Error: ${varName} cannot be an empty string or just spaces`;
+  if (!ObjectId.isValid(id)) throw `Error: ${varName} invalid object ID`;
+  return id;
 }
 
 /**
@@ -24,9 +24,9 @@ const checkId = (id, varName) => {
  * @param {*} input 
  */
 const checkNames = (input) => {
-    var namesCheck = "[a-zA-Z]+"; //checks for letters only
-    if (!namesCheck.test(input))
-      throw "Error: names must only contain alphabetical characters!";
+  var namesCheck = /[a-zA-Z]+/; //checks for letters only
+  if (!namesCheck.test(input))
+    throw "Error: names must only contain alphabetical characters!";
 }
 
 /**
@@ -36,32 +36,14 @@ const checkNames = (input) => {
  * @returns 
  */
 const checkString = (strVal, varName) => {
-    if (!strVal) throw `Error: You must supply a ${varName}!`;
-    if (typeof strVal !== "string") throw `Error: ${varName} must be a string!`;
-    strVal = strVal.trim();
-    if (strVal.length === 0)
-      throw `Error: ${varName} cannot be an empty string or string with just spaces`;
-    if (!isNaN(strVal))
-      throw `Error: ${strVal} is not a valid value for ${varName} as it only contains digits`;
-    return strVal;
-}
-
-/**
- * 
- * @param {*} username 
- */
-const checkUsername = (username) => {
-    if (!username) throw "Error: username was not provided!";
-    if (typeof username !== "string")
-      throw "Error: Username is not of type string!";
-    username = username.trim();
-    if (username.length === 0) throw "Error: username cannot contain just spaces";
-    if (username.length <= 4)
-      throw "Error: username cannot be less than 5 characters";
-    const letters = /[a-zA-Z]/; //regex to check for at least one letter character
-    const letterCheck = letters.test(username);
-    if (!letterCheck)
-      throw "Error: Username must contain at least one letter character.";
+  if (!strVal) throw `Error: You must supply a ${varName}!`;
+  if (typeof strVal !== "string") throw `Error: ${varName} must be a string!`;
+  strVal = strVal.trim();
+  if (strVal.length === 0)
+    throw `Error: ${varName} cannot be an empty string or string with just spaces`;
+  if (!isNaN(strVal))
+    throw `Error: ${strVal} is not a valid value for ${varName} as it only contains digits`;
+  return strVal;
 }
 
 /**
@@ -71,6 +53,7 @@ const checkUsername = (username) => {
  * @returns boolean
  */
 const validString = (str, size = 0) => {
+
   if (!str) throw "You must provide a non-empty string";
   if (typeof str !== "string") throw "You must provide a string";
   if (str.trim().length === 0)
@@ -90,11 +73,13 @@ const validString = (str, size = 0) => {
  * @returns boolean
  */
 const validArray = (arr, size = 1, type = null) => {
+
   if (!arr) throw "You must provide a non-empty array";
   if (arr.length < size) throw "Your array must have at least ${size} elements";
   if (type !== null) {
     let allEqual = (arr) => arr.every((val) => typeof val === type);
     if (!allEqual) throw "All elements in array must be of type ${type}";
+
   }
 
   return true;
@@ -106,10 +91,12 @@ const validArray = (arr, size = 1, type = null) => {
  * @returns boolean: true = has spaces, false = doesn't have spaces
  */
 const hasSpace = (str) => {
+
   if (!str) throw "You must provide a non-empty string";
   if (typeof str !== "string") throw "You must provide a string";
   if (str.trim().length === 0)
     throw "String cannot be empty string or just spaces";
+
 
   str = str.trim();
 
@@ -122,6 +109,7 @@ const hasSpace = (str) => {
  * @returns boolean
  */
 const hasNumbers = (str) => {
+
   if (!str) throw "You must provide a non-empty string";
   if (typeof str !== "string") throw "You must provide a string";
   if (str.trim().length === 0)
@@ -136,10 +124,11 @@ const hasNumbers = (str) => {
  * gets todays date and returns it in form mm/dd/yyyy, is only for C.E. dates
  */
 let getToday = () => {
-  let today = new Date();
+  let today = new Date;
   let dd = today.getDate();
   let mm = today.getMonth() + 1;
   let yyyy = today.getFullYear();
+
 
   if (dd < 10) {
     dd = "0" + dd;
@@ -155,10 +144,33 @@ let getToday = () => {
     yyyy = "0" + yyyy;
   }
 
-  today = mm + "/" + dd + "/" + yyyy;
+  today = mm + '/' + dd + '/' + yyyy;
   return today;
 };
 
+
+
+
+const checkPassword = (password) => {
+  //check password for any character
+  let pwRegex = /^(?=.*?[A-Z])(?=(.*[\d]){1,})(?=(.*[\W]){1,})(?!.*\s).{6,}$/gm
+
+  if (password.trim().match(pwRegex) === null) {
+    verify = false;
+  }
+
+  if (verify === false) {
+    throw "password must have at least 1 uppercase letter, 1 number, and 1 special character";
+  }
+
+  //check password is at least 6 characters
+  if (password.trim().length < 6) {
+    throw "password must be at least 6 characters"
+  }
+
+  return password;
+};
+=======
 const { ObjectId } = require("mongodb");
 
 function checkId(id, varName) {
@@ -221,11 +233,13 @@ function checkStringArray(arr, varName) {
   return arr;
 }
 
+
 module.exports = {
   checkId,
   checkNames,
   checkString,
   checkUsername,
+  checkPassword,
   checkStringArray,
   validString,
   validArray,

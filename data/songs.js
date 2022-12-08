@@ -1,8 +1,8 @@
 // functions for songs
 const mongoCollections = require('../config/mongoCollections');
 const songs = mongoCollections.songs;
+const { ObjectId } = require('mongodb');
 // const users = mongoCollections.users;
-const {ObjectId} = require('mongodb');
 const helper = require('../helpers');
 const user = require('./users');
 const platforms = ['Youtube', 'Soundcloud', 'Apple Music', 'Spotify', 'Tidal'];
@@ -22,19 +22,20 @@ const platforms = ['Youtube', 'Soundcloud', 'Apple Music', 'Spotify', 'Tidal'];
  */
 const postSong = async (posterId, title, artist, genres, links) => {
     // checking if all inputs exist
-    if (!posterId || !title || !artist || !genre || !links) throw 'All fields need to have values';
+    if (!posterId || !title || !artist || !genres || !links) throw 'All fields need to have values';
     //checking if inputs are ok
     if (helper.validString(posterId.trim())) posterId = posterId.trim();
     if (!ObjectId.isValid(posterId)) throw 'Poster does not have valid ObjectId';
-    let admin = await user.isAdmin(userId);
+    let admin = await user.isAdmin(posterId);
     if (!admin) throw 'Not admin'; // checking if admin
     if (helper.validString(title.trim())) title = title.trim();
     if (helper.validString(artist.trim())) artist = artist.trim();
     if (helper.validArray(genres, 1, 'string')) {
-        for (const genre of genres) {
+        for (let genre of genres) {
             if (helper.validString(genre.trim())) {
                 if (helper.hasNumbers(genre.trim())) throw 'Genre cannot contian numbers';
                 genre = genre.trim();
+
                 // testing for invalid characters
                 let badChars = /[@#$%^*_+=\\|<>~\[\]{}()'"`!:;,.?]/;
                 let badEntry = badChars.test(genre);
@@ -42,17 +43,22 @@ const postSong = async (posterId, title, artist, genres, links) => {
             }
         }
     }
+    //console.log(links);
     if (helper.validArray(links, 1)) {
         // checking link pairs
-        for (const link of links) {
+        for (let link of links) {
+
             if (helper.validArray(link, 1, 'string') && link.length === 2) {
                 // checking platform
-                if (helper.validString(link[0].trim())) link = link.trim();
-                if (!(platforms.some(element => { return element.toLowerCase() === link[0].toLowerCase()}))) throw 'Invalid Platform';
+                let platformLink;
+                if (helper.validString(link[0].trim())) platformLink = link[0].trim();
+
+                if ((platforms.find(element => element.toLowerCase() === platformLink.toLowerCase())) === undefined) throw 'Invalid Platform';
                 // checking url
-                if (helper.validString(link[1].trim())) link = link.trim();
+                let urlLink;
+                if (helper.validString(link[1].trim())) urlLink = link[1].trim();
                 // testing for whitespace
-                if (helper.hasSpace(link[1])) throw 'Links cannot contain spaces';
+                if (helper.hasSpace(urlLink)) throw 'Links cannot contain spaces';
             } else {
                 throw `Links array must be of form [[<platform>, <url>], ...] and be only arrays of strings`;
             }
@@ -71,16 +77,16 @@ const postSong = async (posterId, title, artist, genres, links) => {
         comments: [],
         listenLinks: links
     };
-    
+
     //inserting song
     const insertInfo = await songCollection.insertOne(newSong);
     if (!insertInfo.acknowledged || !insertInfo.insertedId) throw 'Could not add song';
-    const newId = insertionInfo.insertedId.toString();
-    
+    const newId = insertInfo.insertedId.toString();
+
     //testing input
     let song = await getSongById(newId);
     song._id = song._id.toString();
-    
+
     // outputting newly made song
     return song;
 };
@@ -93,13 +99,13 @@ const getAllSongs = async () => {
     let songCollection = await songs();
     let songList = await songCollection.find({}).toArray();
     if (!songList) throw 'Could not get all songs';
-    
+
     // formatting output
     for (let i = 0; i < songList.length; i++) {
         songList[i]._id = songList[i]._id.toString();
         let comments = songList[i].comments
         for (let j = 0; j < comments.length; j++) {
-          songList[i].comments[j]._id = songList[i].comments[j]._id.toString();
+            songList[i].comments[j]._id = songList[i].comments[j]._id.toString();
         }
     }
     // output
@@ -115,18 +121,18 @@ const getSongById = async (songId) => {
     if (!songId) throw 'You must provide an id to search for';
     if (helper.validString(songId.trim())) songId = songId.trim();
     if (!ObjectId.isValid(songId)) throw 'Invalid song Object ID';
-    
+
     // getting song
     const songCollection = await songs();
-    let song = await songCollection.findOne({_id: ObjectId(songId)});
+    let song = await songCollection.findOne({ _id: ObjectId(songId) });
     if (song === null) throw `No song with id: ${songId}`;
-    
+
     // formatting output
     song._id = song._id.toString();
-    
+
     // output
     return song;
-}; 
+};
 
 /**
  * deletes song title from artist artist
@@ -157,7 +163,9 @@ const deleteSong = async (songId, userId) => {
     // const comments = song.comments;
 
     // deleting song from DB
+
     const deletionInfo = await songCollection.deleteOne({_id: ObjectId(songId)});
+
     if (deletionInfo.deleteCount === 0) throw `Could not delete song with id of ${songId}`;
 
     // delete comment connections for comment commentId on song
@@ -169,7 +177,7 @@ const deleteSong = async (songId, userId) => {
     // }
     // // deleting songId from admin's songPosts
     // const updatedAdmin = await user.deleteSong(songId, userId);
-    
+
     //output
     const message = `${title} by ${artist} has been successfully deleted`
     return message;
@@ -215,7 +223,7 @@ const updateAll = async (songId, userId, nt, na, ng, nl) => {
             if (helper.validArray(link, 1, 'string') && link.length === 2) {
                 // checking platform
                 if (helper.validString(link[0].trim())) link = link.trim();
-                if (!(platforms.some(element => { return element.toLowerCase() === link[0].toLowerCase()}))) throw 'Invalid Platform';
+                if (!(platforms.some(element => { return element.toLowerCase() === link[0].toLowerCase() }))) throw 'Invalid Platform';
                 // checking url
                 if (helper.validString(link[1].trim())) link = link.trim();
                 // testing for whitespace
@@ -238,8 +246,8 @@ const updateAll = async (songId, userId, nt, na, ng, nl) => {
     };
 
     const updatedInfo = await songCollection.updateOne(
-        {_id: ObjectId(songId)},
-        {$set: updatedSong}
+        { _id: ObjectId(songId) },
+        { $set: updatedSong }
     );
     if (!updatedInfo.modifiedCount === 0) throw `Could not update song successfully`;
 
@@ -255,7 +263,7 @@ const updateAll = async (songId, userId, nt, na, ng, nl) => {
  * @param {*} userId : ObjectId of user invoking function - string
  * @param {*} nt : New song title - string
  */
- const updateSongTitle = async (songId, userId, nt) => {
+const updateSongTitle = async (songId, userId, nt) => {
     // checking inputs
     if (!songId || !userId || !nt) throw 'All fields must have values';
     // checking if user posted
@@ -267,18 +275,18 @@ const updateAll = async (songId, userId, nt, na, ng, nl) => {
     if (!ObjectId.isValid(songId)) throw 'Invalid songId';
     if (helper.validString(nt.trim())) nt = nt.trim();
 
-    
+
 
     const songCollection = await songs();
 
     // updating song title
-    let updatedTitle = {title: nt};
+    let updatedTitle = { title: nt };
     let updatedInfo = await songCollection.updateOne(
-        {_id: ObjectId(songId)},
-        {$set: updatedTitle}
+        { _id: ObjectId(songId) },
+        { $set: updatedTitle }
     );
     if (updatedInfo.modifiedCount === 0) throw 'Could not rename song successfully';
-    
+
     // outputting updated song
     let song = await getSongById(songId);
     return song;
@@ -304,13 +312,13 @@ const updateArtist = async (songId, userId, na) => {
     const songCollection = await songs();
 
     // updating song artist
-    let updatedArtist = {artist: na};
+    let updatedArtist = { artist: na };
     let updatedInfo = await songCollection.updateOne(
-        {_id: ObjectId(songId)},
-        {$set: updatedArtist}
+        { _id: ObjectId(songId) },
+        { $set: updatedArtist }
     );
     if (updatedInfo.modifiedCount === 0) throw 'Could not rename song successfully';
-    
+
     // outputting updated song
     let song = await getSongById(songId);
     return song;
@@ -322,7 +330,7 @@ const updateArtist = async (songId, userId, na) => {
  * @param {*} ng : New genres of song - array
  *  genre is a string containing letters and punctuation (-/&)
  */
- const updateGenre = async (songId, userId, ng) => {
+const updateGenre = async (songId, userId, ng) => {
     // checking inputs
     if (!songId || !userId || !ng) throw 'All fields must have values';
     // checking if user posted
@@ -348,13 +356,13 @@ const updateArtist = async (songId, userId, na) => {
     const songCollection = await songs();
 
     // updating song genres
-    let updatedGenres = {genres: ng};
+    let updatedGenres = { genres: ng };
     let updatedInfo = await songCollection.updateOne(
-        {_id: ObjectId(songId)},
-        {$set: updatedGenres}
+        { _id: ObjectId(songId) },
+        { $set: updatedGenres }
     );
     if (updatedInfo.modifiedCount === 0) throw 'Could not rename song successfully';
-    
+
     // outputting updated song
     let song = await getSongById(songId);
     return song;
@@ -382,7 +390,7 @@ const updateSongLinks = async (songId, userId, nl) => {
             if (helper.validArray(link, 1, 'string') && link.length === 2) {
                 // checking platform
                 if (helper.validString(link[0].trim())) link = link.trim();
-                if (!(platforms.some(element => { return element.toLowerCase() === link[0].toLowerCase()}))) throw 'Invalid Platform';
+                if (!(platforms.some(element => { return element.toLowerCase() === link[0].toLowerCase() }))) throw 'Invalid Platform';
                 // checking url
                 if (helper.validString(link[1].trim())) link = link.trim();
                 // testing for whitespace
@@ -396,19 +404,20 @@ const updateSongLinks = async (songId, userId, nl) => {
     const songCollection = await songs();
 
     // updating song genres
-    let updatedLinks = {listenLinks: nl};
+    let updatedLinks = { listenLinks: nl };
     let updatedInfo = await songCollection.updateOne(
-        {_id: ObjectId(songId)},
-        {$set: updatedLinks}
+        { _id: ObjectId(songId) },
+        { $set: updatedLinks }
     );
     if (updatedInfo.modifiedCount === 0) throw 'Could not rename song successfully';
-    
+
     // outputting updated song
     let song = await getSongById(songId);
     return song;
 };
 
 module.exports = {
+
     postSong,
     deleteSong,
     getAllSongs,
