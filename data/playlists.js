@@ -43,6 +43,7 @@ const getPlaylistById = async (id) => {
   if (!playlist) throw "Playlist not found";
   return playlist;
 };
+
 /**
  * @param {*} playlistId : ObjectId of playlist - string
  * @param {*} userId : ObjectId of user who created and is updating the playlist - string
@@ -80,6 +81,7 @@ const updatePlaylist = async (
   let playlist = await getPlaylistById(playlistId);
   return playlist;
 };
+
 /**
  * @param {*} playlistId : ObjectId of playlist - string
  * @param {*} userId : ObjectId of user who created and is updating the playlist - string
@@ -102,6 +104,7 @@ const deletePlaylist = async (userId, playlistId) => {
   const message = `${name} has been successfully deleted`;
   return message;
 };
+
 module.exports = {
   createPlaylist,
   getPlaylistById,

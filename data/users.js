@@ -95,7 +95,6 @@ const createComment = async (songId, userId, comment, commentRating) => {
 }
 
 /**
-
  *
  * @param {*} firstName : firstname of user entered in the registration page - string
  * @param {*} lastName : lastname of user entered in the registration page - string
