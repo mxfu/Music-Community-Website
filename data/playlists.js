@@ -99,7 +99,7 @@ const deletePlaylist = async (userId, playlistId) => {
     _id: ObjectId(playlistId),
   });
   if (deletionInfo.deletedCount === 0)
-    throw `Could not delete platlist with id of ${playlistId}`;
+    throw `Could not delete playlist with id of ${playlistId}`;
 
   const message = `${name} has been successfully deleted`;
   return message;
