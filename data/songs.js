@@ -275,8 +275,6 @@ const updateSongTitle = async (songId, userId, nt) => {
     if (!ObjectId.isValid(songId)) throw 'Invalid songId';
     if (helper.validString(nt.trim())) nt = nt.trim();
 
-
-
     const songCollection = await songs();
 
     // updating song title
@@ -416,8 +414,50 @@ const updateSongLinks = async (songId, userId, nl) => {
     return song;
 };
 
-module.exports = {
+/**
+ * searches through songs and returns songs where title or artist matches the search term
+ * @param {*} searchTerm : string being searched for
+ * @returns list of song objects
+ */
+const searchSongs = async (searchTerm) => {
 
+};
+
+/**
+ * gets songs to recommend to user based on song with songId's artist and genre
+ * @param {*} songId 
+ * @returns list of songs
+ */
+const recommendSongs = async (songId) => {
+
+};
+
+/**
+ * @returns list of artists from most popular to least popular
+ */
+const mostPopularArtists = async () => {
+
+};
+
+/**
+ * gets all songs with that genre
+ * @param {*} genres 
+ * @returns list of songs that have genre
+ */
+const filterGenre = async (genres) => {
+
+};
+
+/**
+ * gets all songs from the artist
+ * @param {*} artist : artist name - string
+ * @returns list of songs
+ */
+const getArtistSongs = async (artist) => {
+
+};
+
+module.exports = {
     postSong,
     deleteSong,
     getAllSongs,
