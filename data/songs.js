@@ -448,6 +448,15 @@ const filterGenre = async (genres) => {
 
 };
 
+/**
+ * gets all songs from the artist
+ * @param {*} artist : artist name - string
+ * @returns list of songs
+ */
+const getArtistSongs = async (artist) => {
+
+};
+
 module.exports = {
     postSong,
     deleteSong,
