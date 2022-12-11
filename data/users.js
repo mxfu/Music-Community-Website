@@ -1,12 +1,15 @@
 // functions for users
 const mongoCollections = require("../config/mongoCollections");
 const users = mongoCollections.users;
+const songs = mongoCollections.songs;
+const playlists = mongoCollections.playlists;
 const { ObjectId } = require('mongodb');
 const helper = require("../helpers");
 const bcrypt = require("bcryptjs");
 const saltRounds = 16;
 const validation = require('../helpers');
-const { songs } = require('../config/mongoCollections');
+const sf = require('./songs');
+const pf = require('./playlists');
 
 // data functions for users
 
@@ -32,17 +35,26 @@ const checkUser = async (username, password) => {
 
 //leave comments on songs , users react to other comments, deleteing comment, removing an interaction
 const createComment = async (songId, userId, comment, commentRating) => {
-    if (!comment) {
-        throw "must enter an comment";
+    if (!comment || !commentRating || !songId || !userId) {
+        throw "must enter an comment and rating";
     }
 
     if (typeof comment !== 'string') {
         throw "comment must be a string";
     }
 
+    if (typeof commentRating !== 'number') {
+        throw "rating must be a number"
+    }
+
+    if (commentRating < 1 || commentRating > 5) {
+        throw "rating must be 1-5"
+    }
+
     //validation is done
     const music = await songs();
-    const song = await music.getSongById(songId);
+    let song = await music.findOne({ _id: ObjectId(songId) });
+    if (song === null) throw `No song with id: ${songId}`;
     const parseId = ObjectId(songId);
 
     if (!(song)) {
@@ -66,7 +78,11 @@ const createComment = async (songId, userId, comment, commentRating) => {
 
     let profile = findUser.songReviews;
 
-    profile.push(newSongReview["_id"]); //pushing review id into the user's songReviews
+    console.log(profile);
+
+    profile.push(newSongReview["_id"].toString()); //pushing review id into the user's songReviews
+
+    console.log(profile);
 
     let userCollection = await users();
     let parseUser = ObjectId(userId);
@@ -75,9 +91,8 @@ const createComment = async (songId, userId, comment, commentRating) => {
         { _id: parseUser },
         { $set: { songReviews: profile } }
     )
-    if (!(updateUser.matchCount && updateUser.modifiedCount)) {
-        throw "user's comment can not be created";
-    }
+    if (!updateUser.modifiedCount === 0) throw `Could not update song successfully`;
+
 
     let userComments = song.comments;
     userComments.push(newSongReview);
@@ -87,11 +102,57 @@ const createComment = async (songId, userId, comment, commentRating) => {
         { $set: { comments: userComments } }
     );
 
-    if (!(update.matchCount && update.modifiedCount)) {
-        throw "comment can not be created";
-    }
+    if (!update.modifiedCount === 0) throw `Could not update song successfully`;
 
     return newSongReview;
+}
+
+const getAllComments = async (songId) => {
+    const songFound = await songs.getSongById(songId.trim());
+
+    const allSongs = songFound.comments;
+
+    return allSongs;
+}
+
+const getComment = async (commentId) => {
+    const allSongs = await songs.getAllSongs();
+
+    const allComments = allSongs.map((elem) => elem.comments).flat();
+
+    const grabComment = allComments.filter((elem) => elem._id === commentId.trim());
+
+    return grabComment;
+};
+
+//needs to remove by UserID!!!!
+const removeComment = async (commentId) => {
+    const allSongs = await songs.getAllSongs();
+    const songCollection = await songs();
+
+    const findSong = allSongs.filter((song) => {
+        const searchComment = song.comments.filter((comment) => comment._id === commentId.trim());
+
+        if (searchComment === false) {
+            throw "comment not found";
+        }
+    });
+
+    const newId = ObjectId(findSong._id);
+
+    if (!(getComment(commentId.trim()))) {
+        throw "comment cannot be found";
+    } else {
+        const update = findSong.comments.filter((comment) => commentId._id !== commentId.trim());
+
+        const updateSong = await songCollection.updateOne({ _id: newId }, { $set: { comments: update } });
+
+        if (!(updateSong.matchCount && updateSong.modifiedCount)) {
+            throw "could not update song";
+        }
+
+        return "removed successfully";
+    }
 }
 
 /**
@@ -236,6 +297,19 @@ const createAdmin = async (userId) => {
     //need to error check
     return true;
 };
+// deleteing commenting or removing/changing your interaction
+// const removeInteraction = async(commentId, userId){
+// find interaction by id where person interacted matches userId }
+// remove them in comment and user
+// }
+
+//removeAllinteractions ( commentId ) 
+//removes all interaction from comment and registered user
+// 
+
+// const addInteraction = async(commentId, userInteractionID){
+
+// }
 
 module.exports = {
     createUser,
@@ -245,4 +319,7 @@ module.exports = {
     isAdmin,
     createAdmin,
     createComment,
+    getAllComments,
+    getComment,
+    removeComment,
 };
