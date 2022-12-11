@@ -16,6 +16,15 @@ app.set('view engine', 'handlebars');
 
 // Middlewares:
 
+// Authenticated Middleware
+app.use(
+  session({
+    name: 'AuthCookie',
+    resave: false,
+    saveUninitialized: true
+  })
+);
+
 configRoutes(app);
 
 app.listen(3000, () => {

@@ -1,6 +1,5 @@
 const connection = require("../config/mongoConnection");
 const data = require("../data/");
-const { createUser } = require("../data/users");
 const users = data.users;
 const songs = data.songs;
 

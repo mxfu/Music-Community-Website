@@ -2,7 +2,7 @@
 const mongoCollections = require("../config/mongoCollections");
 const playlists = mongoCollections.posts;
 const { ObjectId } = require("mongodb");
-const helper = require("../helpers");
+const validation = require("../helpers");
 
 // data functions for playlists
 
@@ -15,10 +15,10 @@ const helper = require("../helpers");
  * @returns Playlist creation with its information
  */
 const createPlaylist = async (userId, name, description, songs) => {
-  helper.checkId(userId, "ID");
-  helper.checkString(name, "name");
-  helper.checkString(description, "description");
-  helper.checkStringArray(songs, "songs");
+  validation.checkId(userId, "ID");
+  validation.checkString(name, "name");
+  validation.checkString(description, "description");
+  validation.checkStringArray(songs, "songs");
   const playlistCollection = await playlists();
   let newPlaylist = {
     userId: userId,
@@ -37,12 +37,13 @@ const createPlaylist = async (userId, name, description, songs) => {
  * @returns Playlist with searched ID
  */
 const getPlaylistById = async (id) => {
-  id = helper.checkId(id, "ID");
+  id = validation.checkId(id, "ID");
   const playlistCollection = await playlists();
   const playlist = await playlistCollection.findOne({ _id: ObjectId(id) });
   if (!playlist) throw "Playlist not found";
   return playlist;
 };
+
 /**
  * @param {*} playlistId : ObjectId of playlist - string
  * @param {*} userId : ObjectId of user who created and is updating the playlist - string
@@ -58,11 +59,11 @@ const updatePlaylist = async (
   n_Description,
   n_Songs
 ) => {
-  playlistId = helper.checkId(playlistId, "playlist ID");
-  userId = helper.checkId(userId, "user ID");
-  n_Name = helper.checkString(n_Name, "new name");
-  n_Description = helper.checkString(n_Description, "new description");
-  n_Songs = helper.checkStringArray(n_Songs, "new songs");
+  playlistId = validation.checkId(playlistId, "playlist ID");
+  userId = validation.checkId(userId, "user ID");
+  n_Name = validation.checkString(n_Name, "new name");
+  n_Description = validation.checkString(n_Description, "new description");
+  n_Songs = validation.checkStringArray(n_Songs, "new songs");
   const playlistCollection = await playlists();
   let updatedPlaylist = {
     userId: userId,
@@ -80,14 +81,15 @@ const updatePlaylist = async (
   let playlist = await getPlaylistById(playlistId);
   return playlist;
 };
+
 /**
  * @param {*} playlistId : ObjectId of playlist - string
  * @param {*} userId : ObjectId of user who created and is updating the playlist - string
  * @returns message confirming deletion of playlist
  */
 const deletePlaylist = async (userId, playlistId) => {
-  userId = helper.checkId(userId, "userID");
-  playlistId = helper.checkId(playlistId, "playlistID");
+  userId = validation.checkId(userId, "userID");
+  playlistId = validation.checkId(playlistId, "playlistID");
   const playlistCollection = await playlists();
   const playlist = await getPlaylistById(playlistId);
   const name = playlist.name;
@@ -97,11 +99,12 @@ const deletePlaylist = async (userId, playlistId) => {
     _id: ObjectId(playlistId),
   });
   if (deletionInfo.deletedCount === 0)
-    throw `Could not delete platlist with id of ${playlistId}`;
+    throw `Could not delete playlist with id of ${playlistId}`;
 
   const message = `${name} has been successfully deleted`;
   return message;
 };
+
 module.exports = {
   createPlaylist,
   getPlaylistById,

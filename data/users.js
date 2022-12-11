@@ -14,24 +14,29 @@ const pf = require('./playlists');
 // data functions for users
 
 const checkUser = async (username, password) => {
-    username = validation.checkUsername(username);
-    password = validation.checkPassword(password);
+  username = validation.checkUsername(username);
+  password = validation.checkPassword(password);
 
-    //actual creation of user into db
-    const userCollection = await users();
+  //actual creation of user into db
+  const userCollection = await users();
 
-    let found = await userCollection.findOne({ username: username.toLowerCase() });
-    //checking for duplicates
-    if (!(found)) {
-        throw "user does not exist";
-    }
+  let found = await userCollection.findOne({
+    username: username.toLowerCase(),
+  });
+  //checking for duplicates
+  if (!found) {
+    throw "user does not exist";
+  }
 
-    if (!(await bcrypt.compare(password.trim(), found.password))) {
-        throw "Either the username or password is invalid";
-    }
+  if (!(await bcrypt.compare(password.trim(), found.password))) {
+    throw "Either the username or password is invalid";
+  }
 
-    return { authenticatedUser: true };
-}
+  return {
+    authenticatedUser: true,
+    uID: found["_id"].toString(),
+  };
+};
 
 //leave comments on songs , users react to other comments, deleteing comment, removing an interaction
 const createComment = async (songId, userId, comment, commentRating) => {
@@ -39,9 +44,9 @@ const createComment = async (songId, userId, comment, commentRating) => {
         throw "must enter an comment and rating";
     }
 
-    if (typeof comment !== 'string') {
-        throw "comment must be a string";
-    }
+  if (typeof comment !== "string") {
+    throw "comment must be a string";
+  }
 
     if (typeof commentRating !== 'number') {
         throw "rating must be a number"
@@ -57,35 +62,35 @@ const createComment = async (songId, userId, comment, commentRating) => {
     if (song === null) throw `No song with id: ${songId}`;
     const parseId = ObjectId(songId);
 
-    if (!(song)) {
-        throw "no song of that id";
-    }
+  if (!song) {
+    throw "no song of that id";
+  }
 
-    let newSongReview = {
-        _id: ObjectId(),
-        userId: userId,
-        rating: commentRating,
-        likes: 0,
-        dislikes: 0,
-        usersInteractions: []
-    }
+  let newSongReview = {
+    _id: ObjectId(),
+    userId: userId,
+    rating: commentRating,
+    likes: 0,
+    dislikes: 0,
+    usersInteractions: [],
+  };
 
-    let findUser = await getUserById(userId);
+  let findUser = await getUserById(userId);
 
-    if (!findUser) {
-        throw "user cannot be found";
-    }
+  if (!findUser) {
+    throw "user cannot be found";
+  }
 
-    let profile = findUser.songReviews;
+  let profile = findUser.songReviews;
 
-    console.log(profile);
+    //console.log(profile);
 
     profile.push(newSongReview["_id"].toString()); //pushing review id into the user's songReviews
 
-    console.log(profile);
+    //console.log(profile);
 
-    let userCollection = await users();
-    let parseUser = ObjectId(userId);
+  let userCollection = await users();
+  let parseUser = ObjectId(userId);
 
     const updateUser = await userCollection.updateOne(
         { _id: parseUser },
@@ -94,18 +99,18 @@ const createComment = async (songId, userId, comment, commentRating) => {
     if (!updateUser.modifiedCount === 0) throw `Could not update song successfully`;
 
 
-    let userComments = song.comments;
-    userComments.push(newSongReview);
+  let userComments = song.comments;
+  userComments.push(newSongReview);
 
-    const update = await music.updateOne(
-        { _id: parseId },
-        { $set: { comments: userComments } }
-    );
+  const update = await music.updateOne(
+    { _id: parseId },
+    { $set: { comments: userComments } }
+  );
 
     if (!update.modifiedCount === 0) throw `Could not update song successfully`;
 
-    return newSongReview;
-}
+  return newSongReview;
+};
 
 const getAllComments = async (songId) => {
     const songFound = await songs.getSongById(songId.trim());
@@ -156,7 +161,6 @@ const removeComment = async (commentId) => {
 }
 
 /**
-
  *
  * @param {*} firstName : firstname of user entered in the registration page - string
  * @param {*} lastName : lastname of user entered in the registration page - string
@@ -174,128 +178,91 @@ const removeComment = async (commentId) => {
  * TODO remove comment Id from song reviews
  * TODO Remove a playlistId from playlist post
  * TODO remove a commentInteractionsId from commentInteractions
-=======
- * 
- * @param {*} firstName 
- * @param {*} lastName 
- * @param {*} userName 
- * @param {*} password 
- * @param {*} confirmPassword 
- * @param {*} isAdmin 
- * @returns 
-
  */
 const createUser = async (
-    firstName,
-    lastName,
-    userName,
-    password,
-    confirmPassword
+  firstName,
+  lastName,
+  userName,
+  password,
+  confirmPassword
 ) => {
-    helper.checkNames(firstName);
-    helper.checkNames(lastName);
-    helper.checkString(firstName, "string");
-    helper.checkString(lastName, "string");
-    helper.checkUsername(userName);
-    //isAdmin === false; // set isAdmin to false for every user that gets created
-    if (!password === confirmPassword)
-        throw "Error: password must match confirmPassword";
-    const userCollection = await users();
-    const hash = await bcrypt.hash(password, saltRounds);
-    let newUser = {
-        firstName: firstName,
-        lastName: lastName,
-        userName: userName,
-        password: hash,
-        isAdmin: false,
-        songPosts: [],
-        songReviews: [],
-        playlistsPosts: [],
-        commentInterations: [],
-    };
-    const newInsert = await userCollection.insertOne(newUser);
-    if (newInsert.insertedCount === 0) throw "Insert failed!";
-    return await getUserById(newInsert.insertedId.toString());
+  validation.checkNames(firstName);
+  validation.checkNames(lastName);
+  validation.checkString(firstName, "string");
+  validation.checkString(lastName, "string");
+  validation.checkUsername(userName);
+  if (!password === confirmPassword)
+    throw "Error: password must match confirmPassword";
+  const userCollection = await users();
+  const hash = await bcrypt.hash(password, saltRounds);
+  let newUser = {
+    firstName: firstName,
+    lastName: lastName,
+    userName: userName,
+    password: hash,
+    isAdmin: false,
+    songPosts: [],
+    songReviews: [],
+    playlistsPosts: [],
+    commentInteractions: [],
+  };
+  const newInsert = await userCollection.insertOne(newUser);
+  if (newInsert.insertedCount === 0) throw "Insert failed!";
+  return await getUserById(newInsert.insertedId.toString());
 };
 
 /**
-
- *
  * @returns list of users in DB
-=======
- * 
- * @returns 
-
  */
 const getAllUsers = async () => {
-    const userCollection = await users();
-    const userList = await userCollection.find({}).toArray();
-    if (!userList) throw "No users in system!";
-    return userList;
+  const userCollection = await users();
+  const userList = await userCollection.find({}).toArray();
+  if (!userList) throw "No users in system!";
+  return userList;
 };
 
 /**
-
- *
  * @param {*} id : ObjectId of user being searched - string
  * @returns
-=======
- * 
- * @param {*} id 
- * @returns 
-
  */
 const getUserById = async (id) => {
-    id = helper.checkId(id, "ID");
-    const userCollection = await users();
-    const user = await userCollection.findOne({ _id: ObjectId(id) });
-    if (!user) throw "User not found";
-    return user;
+  id = validation.checkId(id, "ID");
+  const userCollection = await users();
+  const user = await userCollection.findOne({ _id: ObjectId(id) });
+  if (!user) throw "User not found";
+  return user;
 };
 
 // same as getUserById but just checks if they're an admin or not
 /**
-
- *
  * @param {*} userId : ObjectId of user being checked - string
  * @returns boolean true if user is admin, false if not
-=======
- * 
- * @param {*} userId 
- * @returns 
-
  */
 const isAdmin = async (userId) => {
-    userId = helper.checkId(userId, "ID");
-    const user = getUserById(userId);
-    if (user.isAdmin === false) return false; //not admin return false
-    else return true; // admin return true
+  userId = validation.checkId(userId, "ID");
+  const user = getUserById(userId);
+  if (user.isAdmin === false) return false; //not admin return false
+  else return true; // admin return true
 };
 
 /**
-
- *
  * @param {*} userId : ObjectId of user being processed for admin privileges - string
-=======
- * 
- * @param {*} userId 
-
  */
 const createAdmin = async (userId) => {
-    userId = helper.checkId(userId, "ID");
-    const user = await getUserById(userId);
-    //need to errorcheck if user exists
-    if (isAdmin(userId) === true) throw "User is already an admin!";
+  userId = validation.checkId(userId, "ID");
+  const user = await getUserById(userId);
+  //need to errorcheck if user exists
+  if (isAdmin(userId) === true) throw "User is already an admin!";
 
-    const userCollection = await users();
+  const userCollection = await users();
 
-    const update = await userCollection.updateOne(
-        { _id: ObjectId(userId) },
-        { $set: { isAdmin: true } }
-    );
+  const update = await userCollection.updateOne(
+    { _id: ObjectId(userId) },
+    { $set: { isAdmin: true } }
+  );
 
-    //need to error check
-    return true;
+  //need to error check
+  return true;
 };
 // deleteing commenting or removing/changing your interaction
 // const removeInteraction = async(commentId, userId){
