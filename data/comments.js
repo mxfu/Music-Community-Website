@@ -2,12 +2,19 @@ const mongoCollections = require("../config/mongoCollections");
 const user = require("./users");
 const song = require("./songs");
 const { ObjectId } = require("mongodb");
+const users = mongoCollections.users;
+const songs = mongoCollections.songs;
 const validation = require("../helpers");
+
+
 
 const createComment = async (songId, userId, comment, commentRating) => {
     if (!comment || !commentRating || !songId || !userId) {
         throw "must enter an comment and rating";
     }
+
+    songId = validation.checkId(songId, "ID");
+    userId = validation.checkId(userId, "ID");
 
     if (typeof comment !== "string") {
         throw "comment must be a string";
@@ -22,15 +29,8 @@ const createComment = async (songId, userId, comment, commentRating) => {
     }
 
     //validation is done
-    const music = await song();
-    let song = await music.findOne({ _id: ObjectId(songId) });
-    if (song === null) throw `No song with id: ${songId}`;
-    const parseId = ObjectId(songId);
 
-    if (!song) {
-        throw "no song of that id";
-    }
-
+    //creates a comment object
     let newSongReview = {
         _id: ObjectId(),
         userId: userId,
@@ -40,47 +40,55 @@ const createComment = async (songId, userId, comment, commentRating) => {
         usersInteractions: [],
     };
 
-
-    let findUser = await getUserById(userId);
-
-    if (!findUser) {
-        throw "user cannot be found";
+    //find the user and push the comment into it
+    let userFound = await user.getUserById(userId);
+    if (!userFound) {
+        throw "user is not found";
     }
 
-    let profile = findUser.songReviews;
+    //all the users comments, they've made
+    let userComments = userFound.songReviews;
+    //the commentId pushed into the array of comments
+    userComments.push(newSongReview["_id"].toString());
 
-    //console.log(profile);
-
-    profile.push(newSongReview["_id"].toString()); //pushing review id into the user's songReviews
-
-    //console.log(profile);
-
-    let userCollection = await users();
-    let parseUser = ObjectId(userId);
-
-    const updateUser = await userCollection.updateOne(
-        { _id: parseUser },
-        { $set: { songReviews: profile } }
+    //update the user to have the new comment(s)
+    const userCollection = await users();
+    let updateUser = await userCollection.updateOne(
+        { _id: ObjectId(userId) },
+        { $set: { songReviews: userComments } }
     )
+
+    //check if the user was updated
     if (!updateUser.modifiedCount === 0) throw `Could not update song successfully`;
 
+    //find the song and push the song into it
+    const songFound = await song.getSongById(songId)
 
-    let userComments = song.comments;
-    userComments.push(newSongReview);
+    if (songFound === null) throw `No song with id: ${songId}`;
 
-    let ratingSum = 0;
-    for (let i = 0; i < userComments.length; i++) {
-        ratingSum += userComments[i].rating;
+    //all the comments under that song
+    let songComments = songFound.comments;
+    songComments.push(newSongReview);
+
+    //update the overall rating of the songs
+    let sumOfRatings = 0;
+
+    //for the length of the song's comment [], add its rating to sumOfRatings
+    for (let i = 0; i < songComments.length; i++) {
+        sumOfRatings += songComments[i].rating;
     }
 
-    ratingSum = parseFloat((ratingSum / userComments.length).toFixed(2));
+    //calculate overallRating
+    let finalRating = parseFloat((sumOfRatings / songComments.length).toFixed(2));
 
-    const update = await music.updateOne(
-        { _id: parseId },
-        { $set: { comments: userComments, overallRating: ratingSum } }
-    );
+    const songCollection = await songs();
+    let updateSong = await songCollection.updateOne(
+        { _id: ObjectId(songId) },
+        { $set: { comments: songComments, overallRating: finalRating } }
+    )
 
-    if (!update.modifiedCount === 0) throw `Could not update song successfully`;
+    //check if the user was updated
+    if (updateSong.modifiedCount === 0) throw `Could not update song successfully`;
 
     return newSongReview;
 };
@@ -114,50 +122,47 @@ const getComment = async (commentId) => {
     return grabComment;
 };
 
-//needs to remove by UserID!!!!
-const removeComment = async (commentId, userId) => {
+// //needs to remove by UserID!!!!
+// const removeComment = async (commentId, userId) => {
+//     commentId = validation.checkId(commentId, "ID");
+//     userId = validation.checkId(userId, "ID");
+//     const allSongs = await songs.getAllSongs();
+//     const songCollection = await song();
+
+//     const findSong = allSongs.filter((song) => {
+//         const searchComment = song.comments.filter((comment) => comment._id === commentId.trim());
+
+//         if (searchComment === false) {
+//             throw "comment not found";
+//         }
+//     });
+
+//     const newId = ObjectId(findSong._id);
+
+//     if (!(getComment(commentId.trim()))) {
+//         throw "comment cannot be found";
+//     } else {
+//         const update = findSong.comments.filter((comment) => commentId._id !== commentId.trim());
+
+//         const updateSong = await songCollection.updateOne({ _id: newId }, { $set: { comments: update } });
+
+//         if (!(updateSong.matchCount && updateSong.modifiedCount)) {
+//             throw "could not update song";
+//         }
+
+//         return "removed successfully";
+//     }
+// }
+
+const createUserInteraction = async (commentId, userId, songId, interactionType) => {
     commentId = validation.checkId(commentId, "ID");
     userId = validation.checkId(userId, "ID");
-    const allSongs = await songs.getAllSongs();
-    const songCollection = await songs();
-
-    const findSong = allSongs.filter((song) => {
-        const searchComment = song.comments.filter((comment) => comment._id === commentId.trim());
-
-        if (searchComment === false) {
-            throw "comment not found";
-        }
-    });
-
-    const newId = ObjectId(findSong._id);
-
-    if (!(getComment(commentId.trim()))) {
-        throw "comment cannot be found";
-    } else {
-        const update = findSong.comments.filter((comment) => commentId._id !== commentId.trim());
-
-        const updateSong = await songCollection.updateOne({ _id: newId }, { $set: { comments: update } });
-
-        if (!(updateSong.matchCount && updateSong.modifiedCount)) {
-            throw "could not update song";
-        }
-
-        return "removed successfully";
-    }
-}
-
-const createUserInteraction = async (commentId, userId, interactionType) => {
-    commentId = validation.checkId(commentId, "ID");
-    userId = validation.checkId(userId, "ID");
+    songId = validation.checkId(songId, "ID");
     if (!interactionType || typeof interactionType !== "boolean") {
         throw "interaction must be a boolean"
     }
 
-    let findUser = await getUserById(userId);
-
-    if (!findUser) {
-        throw "user cannot be found";
-    }
+    //validation done
 
     let newUI = {
         _id: ObjectId(),
@@ -166,29 +171,58 @@ const createUserInteraction = async (commentId, userId, interactionType) => {
         interactionType: interactionType,
     };
 
+    //finds the user interacting
+    let findUser = await user.getUserById(userId);
+
+    if (!findUser) {
+        throw "user cannot be found";
+    }
+
+    //gets the userInteraction array
     let profile = findUser.commentInteractions;
 
-    profile.push(newUI["_id"].toString()); //pushing review id into the user's songReviews
+    profile.push(newUI["_id"].toString()); //pushing userinteraction id into the user's commentInteractions
 
 
     let userCollection = await users();
     let parseUser = ObjectId(userId);
 
+    //update from the user side
     const updateUser = await userCollection.updateOne(
         { _id: parseUser },
         { $set: { commentInteractions: profile } }
     )
 
-    if (!updateUser.modifiedCount === 0) throw `Could not update song successfully`;
+    if (updateUser.modifiedCount === 0) throw `Could not update user successfully`;
 
-    let findComment = getComment(commentId);
+    //find the specific comment
+    let findComment = await getComment(commentId);
 
-    if (!findComment) {
-        throw "user cannot be found";
+    //getComment returns an array of Comment Objects 
+    if (findComment.length === 0) {
+        throw "comment cannot be found";
     }
 
-    //TO-DO : update comment to have user interaction
-    //findComment.addInteraction(commentId, newUI);
+    //isolate the UI
+    let currentUI = findComment[0];
+
+    currentUI.usersInteractions.push(newUI);
+
+    //if interactionType true = like, false = dislike
+    if (interactionType) {
+        currentUI.likes += 1;
+    } else {
+        currentUI.dislikes += 1;
+    }
+
+    //update from the song side
+    let songCollection = await songs();
+    const updateSong = await songCollection.updateOne(
+        { _id: ObjectId(songId), "comments._id": ObjectId(commentId) },
+        { $set: { "comments": currentUI } }
+    )
+
+    if (updateSong.modifiedCount === 0) throw `Could not update song successfully`;
 
     return newUI;
 }
@@ -226,6 +260,5 @@ module.exports = {
     createComment,
     getAllComments,
     getComment,
-    removeComment,
     createUserInteraction,
 };

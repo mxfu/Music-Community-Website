@@ -27,6 +27,12 @@ async function main() {
 
     let parseComment1 = comment1["_id"].toString();
     let testGetComment = await comments.getComment(parseComment1);
+    let testGetAllComments = await comments.getAllComments(parseSong1);
+    //console.log(testGetComment);
+
+    let userInteraction1 = await comments.createUserInteraction(parseComment1, parseUser1, parseSong1, true);
+
+
     //last two lines
     await connection.closeConnection();
     console.log("Done!");
